@@ -1,2 +1,6 @@
 __pycache__/*
 recordings/*
+.vscode/
+*.txt
+*.pyc
+*.egg-info
