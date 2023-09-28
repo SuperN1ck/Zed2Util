@@ -23,14 +23,6 @@ KEEP_GOING = True
 START_STOP_KEY = "s"
 
 
-@dataclasses.dataclass
-class RecordingConfig:
-    save_dir: pathlib.Path = pathlib.Path("recordings")  # Save path for the recording
-    crop: bool = True
-    downscale: float = 2.0
-    zed2config: ZED2Config = default_field(ZED2Config(fps=15))
-
-
 def key_capture_thread():
     global KEEP_GOING
     KEEP_GOING = True
@@ -46,18 +38,20 @@ def key_capture_thread():
     KEEP_GOING = False
 
 
-def main(cfg: RecordingConfig):
+def main(
+    save_dir: pathlib.Path = pathlib.Path("recordings"),
+    zed2config: ZED2Config = ZED2Config(fps=15),
+):
     """
     Records images from the (a?) connected ZED2 camera. Files are saved in `save_dir`.
     save_dir: abc
     """
-    camera = ZED2Camera(cfg.zed2config)
-    cfg.save_dir.mkdir(exist_ok=True, parents=True)
+    camera = ZED2Camera(zed2config)
+    save_dir.mkdir(exist_ok=True, parents=True)
     recording_count = 0
 
     # We just assume they are using our naming convention =)
-    recording_folder_count = len(list(cfg.save_dir.glob("*")))
-    cfg_yaml = tyro.to_yaml(cfg)
+    recording_folder_count = len(list(save_dir.glob("*")))
 
     while True:
         print("---+++=========+++---")
@@ -78,7 +72,7 @@ def main(cfg: RecordingConfig):
         print(
             f"{recording_count}-th recording started\nPress '{START_STOP_KEY}' to stop"
         )
-        recording_save_dir = cfg.save_dir / f"{recording_folder_count:03}"
+        recording_save_dir = save_dir / f"{recording_folder_count:03}"
         # This shouldn't exist
         # recording_save_dir.mkdir(parents=True, exist_ok=False)
         recording_save_dir.mkdir(parents=True, exist_ok=True)
@@ -128,7 +122,7 @@ def main(cfg: RecordingConfig):
         )
 
         with open(str(recording_save_dir / "config.yaml"), "w") as file:
-            yaml.dump(cfg_yaml, file)
+            file.write(tyro.to_yaml(zed2config))
 
         with open(str(recording_save_dir / "intrinsics.yaml"), "w") as file:
             yaml.dump(camera.get_intrinsics(as_dict=True), file)
