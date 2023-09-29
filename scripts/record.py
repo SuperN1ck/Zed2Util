@@ -1,18 +1,17 @@
+import copy
+import dataclasses
+import pathlib
+import threading
+import time
+
+import numpy as np
+import pyzed.sl as sl
+import tyro
+import yaml
+from PIL import Image
 from pynput import keyboard
 
-import threading
 from Zed2Utils.camera import ZED2Camera, ZED2Config
-import pathlib
-import tyro
-import pyzed.sl as sl
-import time
-import uuid
-import cv2
-from PIL import Image
-import numpy as np
-import dataclasses
-import yaml
-import copy
 
 
 def default_field(obj):

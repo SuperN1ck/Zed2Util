@@ -1,9 +1,9 @@
-import tyro
-from Zed2Utils.camera import ZED2Camera, ZED2Config
 import matplotlib.pyplot as plt
-
 import numpy as np
 import open3d as o3d
+import tyro
+
+from Zed2Utils.camera import ZED2Camera, ZED2Config
 
 
 def main(zed2config: ZED2Config):

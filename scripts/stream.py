@@ -1,10 +1,7 @@
-### TODO ########################
-# This script is not up-to date #
-#################################
-
-import tyro
 import cv2
 import numpy as np
+import tyro
+
 from Zed2Utils.camera import ZED2Camera, ZED2Config
 
 
