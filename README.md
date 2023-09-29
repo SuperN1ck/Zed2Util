@@ -7,3 +7,6 @@ Simply run
 pip install -e .
 ```
 in the root of the project.
+
+# Contributing
+This is a WIP repository and any changes are welcome. Code is formatted with `black`.
