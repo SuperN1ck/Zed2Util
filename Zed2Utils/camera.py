@@ -1,8 +1,26 @@
 import numpy as np
-import pyzed.sl as sl
 import dataclasses
 import pathlib
 from typing import Union, Tuple, Dict
+
+try:
+    import pyzed.sl as sl
+except:
+    import logging
+
+    logging.error("Could not load pyzed-SDK. ZED2Camera-class will not be avalable")
+    # Fake everything that is exposed on a high level
+    # TODO is there a better way to do this?
+    import enum
+
+    class RESOLUTION(enum.Enum):
+        HD720 = enum.auto()
+
+    import dataclasses
+
+    @dataclasses.dataclass
+    class sl:
+        RESOLUTION = RESOLUTION.HD720
 
 
 @dataclasses.dataclass
@@ -62,7 +80,9 @@ class ZED2Camera:
         if self.cfg.auto_exposure:
             self.zed.set_camera_settings(sl.VIDEO_SETTINGS.EXPOSURE, -1)
         else:
-            print("[Zed2Utils] Careful! Starting camera with manual exposure and gain control.")
+            print(
+                "[Zed2Utils] Careful! Starting camera with manual exposure and gain control."
+            )
             self.zed.set_camera_settings(sl.VIDEO_SETTINGS.EXPOSURE, self.cfg.exposure)
             self.zed.set_camera_settings(sl.VIDEO_SETTINGS.GAIN, self.cfg.gain)
 
