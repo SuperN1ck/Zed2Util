@@ -49,9 +49,6 @@ def main(
     save_dir.mkdir(exist_ok=True, parents=True)
     recording_count = 0
 
-    # We just assume they are using our naming convention =)
-    recording_folder_count = len(list(save_dir.glob("*")))
-
     while True:
         print("---+++=========+++---")
         print(f"Start new sequence recording by pressing '{START_STOP_KEY}'")
@@ -62,6 +59,9 @@ def main(
         while KEEP_GOING:
             time.sleep(0.1)
 
+        # Make sure the camera is open
+        camera.open_camera()
+
         start = time.time()
         rgbs_left = []
         rgbs_right = []
@@ -71,6 +71,8 @@ def main(
         print(
             f"{recording_count}-th recording started\nPress '{START_STOP_KEY}' to stop"
         )
+        # We just assume they are using our naming convention =)
+        recording_folder_count = len(list(save_dir.glob("*")))
         recording_save_dir = save_dir / f"{recording_folder_count:03}"
         # This shouldn't exist
         # recording_save_dir.mkdir(parents=True, exist_ok=False)
@@ -96,13 +98,16 @@ def main(
 
         camera.zed.disable_recording()
         end = time.time()
+
+        # Close camera when done
+        camera.close_camera()
+
         n_images = len(rgbs_left)
         print(
             f"Recording stopped.\nImages:\t{n_images}\nTime:\t{end - start}\nFPS:\t{n_images / (end - start)}"
         )
 
         recording_count += 1
-        recording_folder_count += 1
 
         print(f"Saving recording to {recording_save_dir}")
         # Save images for visualization

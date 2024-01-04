@@ -51,7 +51,7 @@ class ZED2Camera:
             sl.DEPTH_MODE.NEURAL if cfg.use_neural else sl.DEPTH_MODE.ULTRA
         )
         self.init_params.coordinate_units = sl.UNIT.METER
-        self.init_params.depth_stabilization = True
+        self.init_params.depth_stabilization = 1  # Why and when was the API changed?
         self.init_params.depth_minimum_distance = cfg.min_distance
         self.init_params.depth_maximum_distance = cfg.max_distance
 
@@ -67,11 +67,16 @@ class ZED2Camera:
         self.resolution.height //= cfg.downscale
         self.cfg = cfg
 
+        self._is_open: bool = False
+
         # Open the camera
         if open_camera:
-            self._open_camera()
+            self.open_camera()
 
-    def _open_camera(self):
+    def open_camera(self):
+        if self._is_open:
+            return
+
         err = self.zed.open(self.init_params)
         if err != sl.ERROR_CODE.SUCCESS:
             raise RuntimeError(f"Camera open failed: {err}")
@@ -86,10 +91,20 @@ class ZED2Camera:
             self.zed.set_camera_settings(sl.VIDEO_SETTINGS.EXPOSURE, self.cfg.exposure)
             self.zed.set_camera_settings(sl.VIDEO_SETTINGS.GAIN, self.cfg.gain)
 
+        self._is_open = True
+
+    def close_camera(self):
+        if not self._is_open:
+            return
+        self.zed.close()
+
+        self._is_open = False
+
     def _grab(self):
         err = self.zed.grab(self.runtime_parameters)
         if err != sl.ERROR_CODE.SUCCESS:
-            raise RuntimeError(f"Camera grab failed: {err}", err=err)
+            print(f"Camera grab failed: {err = }")
+            raise RuntimeError()
 
     def get_image(self, trigger_grab: bool = True):
         if trigger_grab:
@@ -183,7 +198,7 @@ class ZED2CameraSVO(ZED2Camera):
         self.init_params.set_from_svo_file(svo_file)
         self.init_params.svo_real_time_mode = real_time_svo
 
-        self._open_camera()
+        self.open_camera()
 
     def set_svo_position(self, pos: int):
         if self.init_params.svo_real_time_mode:

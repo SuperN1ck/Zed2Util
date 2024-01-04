@@ -14,8 +14,8 @@ def main(zed2config: ZED2Config):
 
     axs[0][0].imshow(rgb_left)
     axs[0][1].imshow(rgb_right)
-    axs[1][0].imshow(depth)
-    axs[1][1].imshow(confidence / 100.0)
+    axs[1][0].imshow(depth[..., 0])
+    axs[1][1].imshow(confidence[..., 0] / 100.0)
 
     for ax in axs.flatten():
         ax.axis("off")
